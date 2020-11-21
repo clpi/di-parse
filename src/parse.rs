@@ -35,16 +35,13 @@ impl DivParser {
             Ok(pairs) => {
                 for pair in pairs {
                     Self::print_pairs(&pair, 0);
-                    // println!("Rule:\t{:?}\nSpan:\t{:?}\nText:\t{:?}\n",
-                    //     pair.as_rule(),pair.as_span(), pair.as_str());
-                    // for inner in pair.into_inner() {
-                    //     Self::match_pair(inner);
-                    // }
+                    for inner in pair.into_inner() {
+                        Self::match_pair(inner);
+                    }
                 }
             },
             Err(e) => panic!("{}", e),
         }
-        // println!("{:#?}", words);
         Ok(())
     }
 

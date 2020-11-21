@@ -19,7 +19,15 @@ use pest::{
     prec_climber::PrecClimber,
     RuleType,
 };
+
 pub use parse::*;
+
+lazy_static::lazy_static! {
+    static ref PREC_CLIMBER: PrecClimber<Rule> = {
+        PrecClimber::new(vec![
+        ])
+    };
+}
 
 pub fn run() {
     let filename = env::args().nth(1)
