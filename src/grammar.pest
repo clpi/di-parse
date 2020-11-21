@@ -61,7 +61,7 @@ punc = {
     period | comma | semicolon | colon | exclamation | question_mark
     | fslash | bslash | hyphen | ellipsis | squote | dquote | left_paren | right_paren
 }
-term_punc = {
+term_punc = _{
     (period | comma | semicolon | colon | exclamation
     | question_mark | ellipsis  )  ~ (ws | newl | EOI)?
 }
@@ -74,7 +74,7 @@ obj = ${ ( pronoun_obj | title_case_word ) }
 
 // subexpr = { word }
 
-expr_term = { ws+ | term_punc | EOI | newl+  }
+expr_term = _{ ws+ | term_punc | EOI | newl+  }
 
 
 subexpr = { (subj? ~ (verb | word)+ ~ obj?) ~ expr_term }
@@ -196,20 +196,59 @@ nouns = { "thing" | "house" | "car" }
 parens = @{
     "(" ~ ")"
 }
+// NOT SURE YET --------
+the = @{ "the" }
+a = @{ "a" }
 
+// MODIFIERS -----------
 not = @{ "not" }
 or = @{ "or" }
 and = @{ "and" }
 
+// QUANTIFIERS ---------
+an = @ { "an" }
+some = @{ "some" }
+few = @{ "few" }
+several = @{ "several" }
+many = @{ "many" }
+much = @{ "much" }
+lot = @{ "lot" }
+alot = @{ "alot" }
+couple = @{ "couple" }
+amultiple = @{ (a ~ ( few | couple | lot )) | (alot) }
+word_quantifier = {
+    a | an | some | few | several | amultiple | couple | many
+    | much | lot
+}
+// SPELLED OUT NUMBERS TODO Find a way to do this programmatically
+one = ${"one" }
+two = ${"two" }
+three = ${"three" }
+four = ${"four" }
+five = ${"five" }
+six = ${"six" }
+seven = ${"seven" }
+eight = ${"eight" }
+nine = ${"nine" }
+ten = {"ten" }
+eleven = {"eleven"}
+twelve = {"twelve"}
+spelled_number = { one | two | three | four | five | six | seven | eight | nine | ten }
+quantifier = { word_quantifier | spelled_number }
+
+
+// PRONOUNS --------------
+
 pronoun = { pronoun_obj | pronoun_subj }
-pronoun_subj_sing = { i | he | she | you | it | that}
+pronoun_subj_sing = { i | he | she | you | it | that | this}
 pronoun_subj_plur = { they | we | it | those }
-pronoun_obj_sing = { me | him | her | you |  it | that}
+pronoun_obj_sing = { me | him | her | you |  it | that | this }
 pronoun_obj_plur = { them | us | it | that | those}
-pronoun_subj = { i | he | she | they | we | you | it  | that }
-pronoun_obj = { me | him | her | them | us | you | it | those | that }
-i = @{^"i" }
+pronoun_subj = { i | he | she | they | we | you | it  | that | this}
+pronoun_obj = { me | him | her | them | us | you | it | those | that | this }
+i = @{"I" }
 it = ${^"it"}
+this = ${^"this"}
 that = ${^"that"}
 those = ${^"those"}
 me = ${^"me" }
@@ -224,18 +263,6 @@ us = ${^"us"}
 you = ${^"you"}
 // TODO also add super low prescendence WHO and WHOM
 
-// -------- SPELLED OUT NUMBERS TODO Find a way to do this programmatically
-one = ${"one" }
-two = ${"two" }
-three = ${"three" }
-four = ${"four" }
-five = ${"five" }
-six = ${"six" }
-seven = ${"seven" }
-eight = ${"eight" }
-nine = ${"nine" }
-ten = {"ten" }
-spelled_number = { one | two | three | four | five | six | seven | eight | nine | ten }
 
 // infinitive: be, see, write, do
 // present: is/am/are, sees, does,
@@ -300,7 +327,6 @@ should = @{ "should" }
 
 hasbeen = { has ~ ws ~ been }
 
-a = @{ "a" }
 _as = @{ "as" }
 
 verb = _{ aux | "go" | "look" | "see" }
@@ -360,6 +386,38 @@ tra_because = @{"because"}
 neg_transit = _{tra_however | tra_but | tra_albeit | tra_although}
 pos_transit = _{tra_then | tra_therefore }
 transit = { neg_transit | pos_transit | tra_because}
+
+// ----------- TIME (sup: noun)
+now = @{ "now" }
+today = @{ "today" }
+yesterday = @{ "yesterday" }
+tomorrow = @{ "tomorrow" }
+week = @{ "week" }
+pm = @{^"PM"}
+am_time = @{"AM"}
+morning = @{"morning"}
+afternoon = @{"afternoon"}
+night = @{^"night" | ^"nighttime"}
+evening = @{^"evening"}
+oclock = @{^"oclock" | ^"o'clock"}
+dawn = @{"dawn"}
+dusk = @{"dusk"}
+time = @{
+    (
+        (number{0, 2} ~ colon? ~ number{0, 2}?)
+        | (spelled_number)
+    )
+    ~ ( am_time | pm | oclock )
+}
+
+// ----------- SEQUENTIAL (sup: adj)
+next = @{ "next" }
+previous = @{ ^"prev" | ^"previous" }
+last = @{ "last" } // NOTE ambig. between "previous" and "final" -- for dates always means previous, for opportunities etc. likely means final
+by_time = @{ "by" } // NOTE ambig. between "made from" and "next to (proxim, chron.)" and date limit.
+first = @{ "first" }
+
+
 
 // -------------
 tra_because_of = @{"because" ~ ws ~ "of"}
