@@ -1,0 +1,465 @@
+// TODO get nouns/verbs/etc. from dict automatically
+// ws = _{ " " | "\t" | "\r" | "\n" }
+WHITESPACE = _{ " "  | NEWLINE | "\t"}
+ws = _{ WHITESPACE  }
+// newsubexprj
+
+//
+
+// ---- SINGLE alphanumericsS
+alpha_lower = _{ ASCII_ALPHA_LOWER }
+alpha_upper = _{ ASCII_ALPHA_UPPER }
+alpha = _{ (alpha_lower | alpha_upper) }
+digit = _{ ASCII_DIGIT }
+nonzero_digit = _{ ASCII_NONZERO_DIGIT }
+alphanumeric = _{ alpha | digit }
+
+number = { digit+ }
+alpha_word = _{ alpha+ }
+
+word_obj = { number | alpha_word | ASCII_DIGIT } // ws | punc +???
+
+newl = { NEWLINE }
+word_ws_term = { word_obj }
+word_comma_term = { word_obj ~ comma }
+word_period_term = { word_obj ~ period }
+word_exclamation_term = { word_obj ~ exclamation }
+word_ellipsis_term = { word_obj ~ ellipsis }
+word_question_term = { word_obj ~ question_mark }
+word_colon_term = { word_obj ~ colon }
+word_semicolon_term = {word_obj ~ semicolon}
+word_hyphen_term = {word_obj ~ hyphen}
+word_terminal = {
+    word_ws_term | word_comma_term | word_period_term | word_exclamation_term
+    | word_ellipsis_term | word_question_term | word_colon_term
+    | word_semicolon_term | word_hyphen_term
+}
+terminal_word = { word_obj ~ term_punc }
+sentence_obj = { (word_obj | ws)+ ~ terminal_word }
+
+period = ${ "." }
+not_period = {!period ~ ANY}
+comma = ${ "," }
+semicolon = ${ ";" }
+colon = ${ ":" }
+exclamation = ${ "!" }
+hyphen = ${ "-" }
+question_mark = ${ "?" }
+ellipsis = ${ "..." }
+fslash = ${ "/" }
+bslash = ${ "\\"}
+squote = ${ "'"}
+dquote = ${ "\""}
+tilde = ${ "~" }
+left_paren = ${ "(" }
+right_paren = ${ ")" }
+asterisk = ${ "*" }
+
+char = { (alpha | digit | punc ) }
+gen_char = { alpha  | digit | punc }
+punc = {
+    period | comma | semicolon | colon | exclamation | question_mark
+    | fslash | bslash | hyphen | ellipsis | squote | dquote | left_paren | right_paren
+}
+term_punc = {
+    (period | comma | semicolon | colon | exclamation
+    | question_mark | ellipsis  )  ~ (ws | newl | EOI)?
+}
+
+// TERMINALS
+word = @{ (pronoun | verb | preposition | adjectives | nouns | alphanumeric )+ } // @ or $?
+title_case_word = @{ !(". ") ~ alpha_upper ~ (alphanumeric)+ } // TODO check to make sure not start of sentence
+subj = ${ (pronoun_subj | title_case_word ) } // TODO make sure title case word not in set of words known, like "but", "to", "where", etc.
+obj = ${ ( pronoun_obj | title_case_word ) }
+
+// subexpr = { word }
+
+expr_term = { ws+ | term_punc | EOI | newl+  }
+
+
+subexpr = { (subj? ~ (verb | word)+ ~ obj?) ~ expr_term }
+
+expr = { (subj? ~ (verb | word)+ ~ obj?) ~ expr_term }
+
+expr_question = { q_word? ~ subexpr+ ~ question_mark }
+expr_exclamation = { subexpr+ ~ exclamation }
+expr_comma_left = { subexpr+ ~  &comma }
+expr_comma_right = { &comma ~ subexpr+ }
+expr_period = { subexpr+ ~ &comma }
+expr_semicolon_left = { subexpr+ ~ &semicolon }
+expr_semicolon_right = { &semicolon ~ subexpr+ }
+expr_colon_left = { subexpr+ ~ &colon }
+expr_colon_right = { &colon ~ subexpr+ }
+expr_hyphen_left = { subexpr+ ~ &colon }
+expr_hyphen_right = { &colon ~ subexpr+ }
+expr_in_parens = { &left_paren ~ subexpr+ ~ &right_paren }
+expr_out_parens = { subexpr* ~ &left_paren ~ &ANY+ ~ &right_paren ~ subexpr*  }
+expr_all_types = {
+    ( expr_question | expr_exclamation  | expr_comma_left | expr_comma_right
+    | expr_period | expr_semicolon_left | expr_semicolon_right | expr_colon_left
+    | expr_colon_right | expr_hyphen_left | expr_hyphen_right | expr_in_parens
+    | expr_out_parens )* ~ expr_term
+}
+supexpr = { expr_all_types }
+
+
+full = { SOI ~ expr* ~ EOI }
+
+
+
+
+
+
+
+
+gen_chars_ws = { (gen_char ~ ws)* }
+gen_chars_ws_or = { ( gen_char | gen_chars_ws ) }
+
+upper_letter = _{ UPPERCASE_LETTER }
+lower_letter = _{ !upper_letter ~ ANY }
+title_case = _{ ws ~ upper_letter }
+not_title_case = _{ !title_case ~ ANY }
+punc_or_ws = _{ punc | ws }
+
+int   = @{ "-" ? ~ ("0" | '1'..'9' ~ '0'..'9' * ) }
+float = @{
+    "-" ? ~
+    (
+        "0" ~ "." ~ '0'..'9' + |
+        '1'..'9' ~ '0'..'9' * ~ "." ~ '0'..'9' +
+    )
+}
+noncharacter = _{ !char ~ ANY }
+
+char_list = { !digit ~ char ~ (" " ~ char)+ }
+
+// STATE -----------------------------------------------------
+bool_true = @{ "true" | "True" }
+bool_false = @{ "false" | "False" }
+correct = @{ "correct" }
+incorrect = @{ "incorrect" }
+right = @{ "right" } // TODO distinguish between moral and correctness
+wrong = @{ "wrong" }
+bool_pos = @{ bool_true | correct | right }
+bool_neg = @{ bool_false | incorrect | wrong }
+bool = {bool_true | bool_false}
+
+good = @{ "good" }
+bad = @{ "bad" }
+evil = @{ "evil" }
+virtuous = @{ "virtuous" }
+courageous = @{ "courageous" }
+cowardly = @{ "cowardly" }
+strong = @{ "strong" }
+brave = @{ "brave" }
+weak = @{ "weak" }
+pathetic = @{ "pathetic" }
+adj_moral_pos = { good | virtuous  | strong | brave }
+adj_moral_neg = { bad | evil  | cowardly | weak | pathetic }
+adj_moral = {adj_moral_pos | adj_moral_neg}
+
+// Misc
+weird = @{"weird"}
+strange = @{"strange"}
+odd = @{"odd"}
+adj_misc = { weird | strange | odd }
+
+// Characteristics
+shy = @{"shy"}
+confident = @{"confident"}
+outgoing  = @{"outgoing"}
+patient  = @{"patient"}
+adj_character = { shy | confident  | outgoing | patient }
+
+ugly = @{"ugly"}
+pretty = @{"pretty"}
+adj_appearance = { ugly | pretty }
+
+// Moods
+happy = @{ "happy" }
+sad = @{ "sad" }
+angry = @{ "angry"}
+well = @{ "well" }
+unwell = @{"unwell"}
+adj_mood = { happy | sad | angry | well | unwell }
+adjectives = {
+    adj_mood | adj_appearance | adj_character | adj_misc | adj_moral
+    | bool
+}
+
+//
+
+nouns = { "thing" | "house" | "car" }
+
+
+
+parens = @{
+    "(" ~ ")"
+}
+
+not = @{ "not" }
+or = @{ "or" }
+and = @{ "and" }
+
+pronoun = { pronoun_obj | pronoun_subj }
+pronoun_subj_sing = { i | he | she | you | it | that}
+pronoun_subj_plur = { they | we | it | those }
+pronoun_obj_sing = { me | him | her | you |  it | that}
+pronoun_obj_plur = { them | us | it | that | those}
+pronoun_subj = { i | he | she | they | we | you | it  | that }
+pronoun_obj = { me | him | her | them | us | you | it | those | that }
+i = @{^"i" }
+it = ${^"it"}
+that = ${^"that"}
+those = ${^"those"}
+me = ${^"me" }
+he = ${^"he" }
+him = ${^"him" }
+she = ${^"she" }
+her = ${^"her" }
+they = ${^"they" }
+them = ${^"them" }
+we = ${^"we" }
+us = ${^"us"}
+you = ${^"you"}
+// TODO also add super low prescendence WHO and WHOM
+
+// -------- SPELLED OUT NUMBERS TODO Find a way to do this programmatically
+one = ${"one" }
+two = ${"two" }
+three = ${"three" }
+four = ${"four" }
+five = ${"five" }
+six = ${"six" }
+seven = ${"seven" }
+eight = ${"eight" }
+nine = ${"nine" }
+ten = {"ten" }
+spelled_number = { one | two | three | four | five | six | seven | eight | nine | ten }
+
+// infinitive: be, see, write, do
+// present: is/am/are, sees, does,
+// past: was were did
+// past participle: been, done, seen
+// present participle: being, seing, writing, doing
+
+aux_verb_sing_pr = { is | am | has | have | can | shall | will }
+aux_verb_sing_pt = { was | had | could | should | would }
+aux_verb_plur_pr = { are | have | will | can | shall }
+aux_verb_plur_pt = { were | could | would | have | should }
+aux_verb_plur_fu = { will | can  | shall }
+aux_pt = { aux_verb_plur_pt | aux_verb_sing_pt }
+aux_pr = { aux_verb_sing_pr | aux_verb_plur_pr }
+aux = { aux_pt | aux_pr }
+// 24 /modals
+
+// ------- to be -> Followed by adjective
+be = @{"be"}
+been = @{"been"}
+had_been = @{"had" ~ ws ~"been"}
+is = @{ "is" }
+am = @{ "am" }
+are = @{ "are" }
+was = @{ "was" }
+were = @{ "were" }
+
+// -------to have -> Followed by object
+has = @{ "has" }
+had = @{ "had" }
+have = @{ "have"  }
+tohave = { has | had | have }
+
+// ------- to do -> Followed by action
+_do = @{ "do" }
+did = @{ "did" }
+does = @{ "does" }
+todo = @{ _do | did | does }
+
+// ------- to will -> followed by a verb
+will = @{ "will" }
+would = @{ "would" }
+
+// ------- to maybe -> followed by a verb
+may = @{ "will" }
+might = @{ "would" }
+must = @{ "will" }
+ought = @{ "ought" }
+ought_to = @{ "ought" }
+_use = @{ "use" }
+used = @{ "used" }
+used_to = @{ "used" ~ ws ~ "to"}
+dare = @{ "dare" }
+dared = @{ "dared" }
+need = @{ "would" }
+needed = @{ "would" }
+needed_to = @{ "would" ~ ws ~ "to"}
+can = @{ "can" }
+could = @{ "could" }
+shall = @{ "shall" }
+should = @{ "should" }
+
+hasbeen = { has ~ ws ~ been }
+
+a = @{ "a" }
+_as = @{ "as" }
+
+verb = _{ aux | "go" | "look" | "see" }
+prog_verb = @{ verb ~ "ing" }
+
+expr_sing_pt = { pronoun ~ aux_verb_sing_pr ~ prog_verb }
+
+preposition = _{
+    to | at | before | after | over | of | under | above | below
+    | from
+}
+
+to = @{"to" }
+at = @{"at" }
+before = @{ "before" }
+after = @{ "after" }
+over = @{ "over" }
+of = @{ "of" }
+under = @{ "under" }
+through = @{ "under" }
+by = @{ "by" }
+above = @{ "above" }
+below = @{"below" }
+from = @{"from" }
+// ------------- COMPARE WORDS
+comp_like = @{ "like" }
+comp_as = @{ "as" }
+comp_similar_to = @{ "similar" ~ ws ~ "to" }
+comp = { comp_like | comp_similar_to }
+
+
+// --------------QUESTION WORDS
+q_why = @{"why"}
+q_where = @{"where"}
+q_how = @{"how"}
+q_who = @{"who"}
+q_what = @{"what"}
+q_when = @{"when"}
+q_word = { q_why | q_where | q_how | q_who | q_what | q_when }
+
+// ------------- CONDITIONS
+cond_if = @{"if" }
+cond_when = @{"when" }
+cond_while= @{"while" }
+cond_for = @{"for" }
+cond = {cond_if | cond_when | cond_while | cond_for }
+
+// ------------- THEREFORE
+tra_then = @{"then"}
+tra_for = @{"for"}
+tra_therefore = @{"therefore"}
+tra_however = @{"however"}
+tra_albeit = @{"albeit"}
+tra_although = @{"although"}
+tra_but = @{"but"}
+tra_because = @{"because"}
+neg_transit = _{tra_however | tra_but | tra_albeit | tra_although}
+pos_transit = _{tra_then | tra_therefore }
+transit = { neg_transit | pos_transit | tra_because}
+
+// -------------
+tra_because_of = @{"because" ~ ws ~ "of"}
+tra_due_to = @{"due" ~ ws ~ "to"}
+
+name = { alpha+ }
+// word = { (ws | punc | SOI) ~ alpha+ ~ (ws | punc | EOI) }
+value = { alpha* }
+expr_subj = {
+    pronoun_subj ~ ws
+    ~ ( aux_verb_sing_pr | aux_verb_plur_pr )
+    ~ ws ~ value
+}
+expr_subj_obj = {
+    pronoun_subj ~ ws
+    ~ ( aux_verb_sing_pr | aux_verb_plur_pr )
+    ~ ws ~ pronoun_obj
+}
+expr_pt_subj = {
+    pronoun_subj ~ ws
+    ~ ( aux_verb_sing_pt | aux_verb_plur_pt )
+    ~ ws ~ value
+}
+expr_pt_subj_obj = {
+    pronoun_subj ~ ws
+    ~ ( aux_verb_sing_pt | aux_verb_plur_pt )
+    ~ ws ~ pronoun_obj
+}
+//-------------EXPRESSIONS
+expr_pt = _{ expr_pt_subj | expr_pt_subj_obj }
+expr_pr = _{expr_subj | expr_subj_obj}
+general_expr = _{expr_pt | expr_pr}
+comma_expr = { general_expr ~ comma }
+semicolon_expr = { general_expr ~ semicolon }
+colon_expr = { general_expr ~ colon }
+statement = { general_expr | comma_expr | semicolon_expr | colon_expr }
+// -------- SENTENCES
+exclcamation = { statement+ ~ exclamation }
+// sentence = { (statement | comma_expr | semicolon_expr | colon_expr )+  ~ period }
+question = { q_word ~ (general_expr)+ ~ question_mark }
+
+startsentence = { "." ~  ws ~ expr}
+// -------- WHOLE FILES
+file = {
+    SOI ~
+    (comma_expr | expr)* ~
+    EOI
+}
+
+item = { ws }
+record = { ws }
+field = { ws }
+monday = { "monday" | "mon" | "mo"}
+tuesday = { "tuesday" | "tues" | "tue" }
+saturday = { "saturday" | "sat" }
+weekday = _{ "monday" | "tuesday" | "wednesday" | "thursday" | "friday" }
+weekend = _{ "sunday" | "saturday" }
+day = { weekday | weekend }
+
+templ = { SOI ~ ANY* ~ EOI }
+
+special_name = @{ title_case_word }
+
+
+// neg_mod = @{ ("'nt" | "nt" | (ws ~ not) ) }o
+// pt_mod = @{ ("a" | "'ve" | "ve" | (ws ~ have)) }
+
+// oneg_basic = @{
+    // _( not | or | and | is | has | have | had | can | was | will ) ~
+    // nt_neg
+// }
+
+// iseq = { "=" }
+// eq = { "==" }
+// ineq = { "!=" }
+// bar = { "|" }
+// slash = { "/" }
+// plus = { "+" }
+// minus = { "-" }
+// times = { "*" }
+// lt = { "<" }
+// gt = { ">" }
+// lte = {"<="}
+// gte = { ">=" }
+//
+// comp_val = _{ plus | minus | slash | times }
+// comp_op = _{ eq | nieq | lt | gt | lte | gte }
+// comp = _{ comp_val | comp_op }
+//
+// gen_verb = { comp | verb }
+//
+//
+// // all_alphas = _{'a'..'z' | 'A'..'Z' | "_" | '0'..'9'}
+// char = @{
+    // ('a'..'z' | 'A'..'Z' | "_") ~
+    // all_alphas*
+// }
+//
+// // in_cond_container = {string_expr_filter | array_filter | dotted_square_bracket_char}
+// // in_cond = !{ (string_expr_filter | basic_expr_filter) ~ op_not? ~ "in" ~ in_cond_container }
+
+// logic_val  = !{ op_not? ~ (in_cond | comparison_expr) }
+// logic_expr = !{ logic_val ~ ((op_or | op_and) ~ logic_val)* }
