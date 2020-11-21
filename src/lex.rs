@@ -4,17 +4,18 @@ use pest::{
     RuleType,
 };
 
+#[derive(Clone, Debug)]
 pub struct Lexer {
-    rule: Rule,
+    pub rule: Rule,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Statement {
-    subj: Vec<String>,
-    obj: Option<Vec<String>>,
-    adj: Option<Vec<String>>,
-    adv: Option<Vec<String>>,
-    verb: Vec<String>,
+    pub subj: Vec<String>,
+    pub obj: Option<Vec<String>>,
+    pub adj: Option<Vec<String>>,
+    pub adv: Option<Vec<String>>,
+    pub verb: Vec<String>,
 }
 
 impl Statement {

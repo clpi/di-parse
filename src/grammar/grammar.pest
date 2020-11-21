@@ -1,10 +1,5 @@
-// TODO get nouns/verbs/etc. from dict automatically
-// ws = _{ " " | "\t" | "\r" | "\n" }
 WHITESPACE = _{ " "  | NEWLINE | "\t"}
 ws = _{ WHITESPACE  }
-// newsubexprj
-
-//
 
 // ---- SINGLE alphanumericsS
 alpha_lower = _{ ASCII_ALPHA_LOWER }
@@ -519,44 +514,3 @@ mine = @{"mine"}
 ownership_1 = { their | his | my | her | our | its }
 ownership_2 = { theirs | his | mine | hers | ours | its }
 ownership = { ownership_1 | ownership_2 }
-
-
-// neg_mod = @{ ("'nt" | "nt" | (ws ~ not) ) }o
-// pt_mod = @{ ("a" | "'ve" | "ve" | (ws ~ have)) }
-
-// oneg_basic = @{
-    // _( not | or | and | is | has | have | had | can | was | will ) ~
-    // nt_neg
-// }
-
-// iseq = { "=" }
-// eq = { "==" }
-// ineq = { "!=" }
-// bar = { "|" }
-// slash = { "/" }
-// plus = { "+" }
-// minus = { "-" }
-// times = { "*" }
-// lt = { "<" }
-// gt = { ">" }
-// lte = {"<="}
-// gte = { ">=" }
-//
-// comp_val = _{ plus | minus | slash | times }
-// comp_op = _{ eq | nieq | lt | gt | lte | gte }
-// comp = _{ comp_val | comp_op }
-//
-// gen_verb = { comp | verb }
-//
-//
-// // all_alphas = _{'a'..'z' | 'A'..'Z' | "_" | '0'..'9'}
-// char = @{
-    // ('a'..'z' | 'A'..'Z' | "_") ~
-    // all_alphas*
-// }
-//
-// // in_cond_container = {string_expr_filter | array_filter | dotted_square_bracket_char}
-// // in_cond = !{ (string_expr_filter | basic_expr_filter) ~ op_not? ~ "in" ~ in_cond_container }
-
-// logic_val  = !{ op_not? ~ (in_cond | comparison_expr) }
-// logic_expr = !{ logic_val ~ ((op_or | op_and) ~ logic_val)* }

@@ -1,20 +1,24 @@
 use pest::iterators::{Pair, Pairs};
 use crate::parse::*;
 
+#[derive(Debug, Default)]
 pub struct Ast<'a> {
     children: Vec<AstNode<'a>>,
 }
 
+#[derive(Debug)]
 pub struct AstNode<'a> {
     word: &'a str,
     rule: Rule,
     children: Vec<AstNode<'a>>,
 }
 
+#[derive(Debug)]
 pub struct AstSentenceNode {
 
 }
 
+#[derive(Debug)]
 pub enum AstParagraphNode {
 
 }

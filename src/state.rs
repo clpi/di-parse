@@ -7,32 +7,41 @@ pub trait Verb: Action {}
 
 pub trait Modal {}
 
+#[derive(Debug, Clone)]
 pub struct Is<S: Entity, O: Entity> {
-    subj: S,
-    obj: O
+    pub subj: S,
+    pub obj: O
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct Can<S: Entity, V: Verb> {
-    subj: S,
-    verb: V,
+    pub subj: S,
+    pub verb: V,
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct Has<S: Subject, O: Object> {
-    subj: S,
-    obj: O,
+    pub subj: S,
+    pub obj: O,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Tense {
     Present,
     Past,
     Future,
 }
 
-#[derive(Debug)]
+impl Default for Tense {
+    fn default() -> Self {
+        Tense::Present
+    }
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct State<S: Modal> {
-    state: S,
-    tense: Tense,
+    pub state: S,
+    pub tense: Tense,
 }
 
 
