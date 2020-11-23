@@ -1,6 +1,7 @@
 WHITESPACE = _{ " "  | NEWLINE | "\t"}
 ws = _{ WHITESPACE  }
 
+
 // ---- SINGLE alphanumericsS
 alpha_lower = _{ ASCII_ALPHA_LOWER }
 alpha_upper = _{ ASCII_ALPHA_UPPER }
@@ -129,7 +130,31 @@ noncharacter = _{ !char ~ ANY }
 
 char_list = { !digit ~ char ~ (" " ~ char)+ }
 
-// STATE -----------------------------------------------------
+// CONJUNCTION ---------------------------------------------------
+_or = @{"or"}
+_and = @{"and"}
+_not = @{"not"}
+_if = @{"if"}
+
+conjunction = @{ _or | _and | _not | _if }
+
+// ADJECTIVE -----------------------------------------------------
+
+// my your his are adjectives
+the = @{"the"}
+
+its = @{ "its" }
+my = @{ "my" }
+his = @{ "his" }
+your = @{"your"}
+their = @{ "their" }
+our = @{ "our" }
+
+adj_own = { its | my | his | your | their | our }
+
+
+
+
 bool_true = @{ "true" | "True" }
 bool_false = @{ "false" | "False" }
 correct = @{ "correct" }
@@ -187,7 +212,14 @@ adjectives = {
     | bool | fast | slow
 }
 
-//
+// NOUN-----------------------------------
+man = @{"man"}
+woman = @{"woman"}
+boy = @{"boy"}
+girl = @{"girl"}
+thing = @{"thing"}
+anything = @{"anything"}
+nothing = @{"nothing"}
 
 nouns = { "thing" | "house" | "car" }
 
@@ -345,22 +377,27 @@ prog_verb = @{ verb ~ "ing" }
 
 expr_sing_pt = { pronoun ~ aux_verb_sing_pr ~ prog_verb }
 
+// PREPOSITION ---------------------------
+// Heur: <ADV?> ~ <VERB (nec)> ~ <ADV?> ~ <PREP> ~ <ADJ?> ~ <NOUN (must be)>
 preposition = ${
-    to | at | before | after | over | of | under | above | below
-    | from | on | like | _as | by
+    _to | _at | before | after | over | _of | under | above | below
+    | from | _on | like | _as | _by | _for | _in
 }
 
-to = @{"to" }
-at = @{"at" }
+_in = @{"in"}
+_to = @{"to" }
+_at = @{"at" }
+_for = @{"for"}
+_by = @{ "by" }
+_of = @{ "of" }
+_on = @{ "on" }
+
 before = @{ "before" }
 after = @{ "after" }
 near = @{"near"}
 over = @{ "over" }
-of = @{ "of" }
-on = @{ "on" }
 under = @{ "under" }
 through = @{ "under" }
-by = @{ "by" }
 above = @{ "above" }
 below = @{"below" }
 from = @{"from" }
@@ -494,24 +531,80 @@ templ = { SOI ~ ANY* ~ EOI }
 
 special_name = @{ title_case_word }
 
-// ------------ MISC UNCATEGORIZED FOR NOW
+// ------------ ADVERB
 there = @{ "there" }
 here = @{ "here" }
+then = @{ "then" }
 adverb = { there | here }
 
+
+
+
+
 theirs = @{ "theirs" }
-its = @{ "its" }
-my = @{ "my" }
-his = @{ "his" }
 ours = @{ "ours" }
 hers = @{ "hers" }
 ownership_mod = @{ word ~ "'s" } // TODO handle no apostrophe
 
 // her = @{ "her" }
-their = @{ "their" }
-our = @{ "our" }
 mine = @{"mine"}
 
 ownership_1 = { their | his | my | her | our | its }
 ownership_2 = { theirs | his | mine | hers | ours | its }
 ownership = { ownership_1 | ownership_2 }
+
+
+// SENTENCE TYPES
+//    SENT
+//       IMPR (imperative)
+//       DECL (declaration)
+//       QUES (question)
+//       EXCL (exclamation)
+//       CMPD (compound)
+//
+// TOP LEVEL TOKEN TYPES
+//    PUNC
+//    NP
+//      NOUN
+//
+//   ...NP* (SUBJ) ~  VERB* (HEAD) ... (NP|PUNC)+
+//      (PAST,PRES)
+//        (SING, PLUR)
+//          (AUX, NAUX)
+//
+
+
+
+
+// NOTE                             |      SEGTYPE:    DECL
+// TOP LEVEL:     STRING            |  "The question was answered."
+//                   |              |    |     |      |     |     |
+//             SENT  DECL  QUEST    |   NP     NP    VERB  NP    PUNC
+//             /     |      \       |    |     |      |     |
+//             \     |      /       |   ADJ   NOUN   VERB  ADJ
+//                                  |    /    SUBJ   HEAD   \
+//                                  |         SING   BASE:BE \
+//                                  |                PAST
+//                                  |                AUX
+//
+// DECLII----NP1-------NOUN1*----"bagels"
+// 1----NP2-------PRON1*----"I"
+// 1----VERB1*----"know"
+// 1----VP1-------COMPLl----""
+// I
+// NP3-------PRON2*----"he"
+// I
+// VERB2*----"likes"
+// 1----PUNC1-----"."
+//
+// EXTRACT
+// SEGTYPE VP
+// STR "he likes"
+// BASE "like"
+// POS  NOUN VERB
+// INDIC SING PERS3 PRS TRAN THATCOMP INGCOMP NPING NPTOV NPTIRT
+// PRMODS COMPLI  ""
+// PRMODS NP3    "he"
+// HEAD  VERB2 "likes"
+// SUBJECT NP3  "he"
+// OBJECT NPI  "bagels"

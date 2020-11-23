@@ -1,3 +1,8 @@
+// heuristic h1: If the head has an is-for feature, and a. the modifier matches one of the valuees of the is-for feature, then relation holds, or b. any of the hypernyms of the modifier match any of the values of the is-for feature, then holds *probably*
+// heuristic h1: if head has a location-of feature and if any values of the location-of feature have HAS-SUBJECT or HAS-OBJECT features and:
+//      a. the modifier matches any of the values of hte has-subject or has-object features then the relationship almost certainly hodlds
+//      b. any of the hypernyms of the modifier match any of the has-subject or has-object features, then the relationship probably holds
+// heuristic h3: if the headnoun has a HASOBJECT feature and a. the modifier matches any of the has-object values, then the relationship porbably holds, or b. any of the hypernyms of the modifier matches any of hte has-object values, the relationship might hold
 extern crate pest;
 use pest::{
     Parser, ParseResult,
@@ -5,7 +10,7 @@ use pest::{
 };
 
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 #[grammar = "grammar/grammar.pest"]
 pub struct DivParser;
 
@@ -55,36 +60,4 @@ impl DivParser {
             }
         }
     }
-
-    pub fn match_char(pair: Pair<'_, Rule>) -> () {
-        for inner in pair.into_inner() {
-            match inner.as_rule() {
-                Rule::alpha => print!("Alpha:\t{:?}\n", inner.as_str()),
-                Rule::digit => print!("Digit:\t{:?}\n", inner.as_str()),
-                Rule::punc => {
-                    print!("Punct:\t{:?}\n", inner.as_str());
-                    Self::match_punc(inner);
-                },
-                Rule::ws => print!("Space:\t{:?}\n", inner.as_str()),
-                _ => continue,
-            }
-        }
-    }
-
-    pub fn match_punc(pair: Pair<'_, Rule>) -> () {
-        for inner in pair.into_inner() {
-            match inner.as_rule() {
-                Rule::period => print!("Period:\t{:?}\n", inner.as_str()),
-                Rule::comma => print!("Comma:\t{:?}\n", inner.as_str()), // TODO handle both sides
-                Rule::exclamation => print!("Exclamation:\t{:?}\n", inner.as_str()),
-                Rule::question_mark => {
-                    print!("Exclamation:\t{:?}\n", inner.as_str());
-                },
-                Rule::semicolon => print!("Semicolon:\t{:?}\n", inner.as_str()), //TODO handle both sides
-                Rule::colon => print!("Colon:\t{:?}", inner.as_str()), //TODO handle both sides
-                _ => continue,
-            }
-        }
-    }
-
 }
