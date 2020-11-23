@@ -141,7 +141,24 @@ conjunction = @{ _or | _and | _not | _if }
 // ADJECTIVE -----------------------------------------------------
 
 // my your his are adjectives
+a = @{ "a" }
 the = @{"the"}
+
+// QUANTIFIERS ---------
+an = @ { "an" }
+some = @{ "some" }
+few = @{ "few" }
+several = @{ "several" }
+many = @{ "many" }
+much = @{ "much" }
+lot = @{ "lot" }
+alot = @{ "alot" }
+couple = @{ "couple" }
+amultiple = @{ (a ~ ( few | couple | lot )) | (alot) }
+word_quantifier = {
+    a | an | some | few | several | amultiple | couple | many
+    | much | lot
+}
 
 its = @{ "its" }
 my = @{ "my" }
@@ -229,29 +246,12 @@ parens = @{
     "(" ~ ")"
 }
 // NOT SURE YET --------
-the = @{ "the" }
-a = @{ "a" }
 
 // MODIFIERS -----------
 not = @{ "not" }
 or = @{ "or" }
 and = @{ "and" }
 
-// QUANTIFIERS ---------
-an = @ { "an" }
-some = @{ "some" }
-few = @{ "few" }
-several = @{ "several" }
-many = @{ "many" }
-much = @{ "much" }
-lot = @{ "lot" }
-alot = @{ "alot" }
-couple = @{ "couple" }
-amultiple = @{ (a ~ ( few | couple | lot )) | (alot) }
-word_quantifier = {
-    a | an | some | few | several | amultiple | couple | many
-    | much | lot
-}
 // SPELLED OUT NUMBERS TODO Find a way to do this programmatically
 one = ${"one" }
 two = ${"two" }
