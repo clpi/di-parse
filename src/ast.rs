@@ -19,6 +19,11 @@ pub struct AstSentenceNode {
 }
 
 #[derive(Debug)]
+pub struct AstCharacterNode {
+
+}
+
+#[derive(Debug)]
 pub enum AstParagraphNode {
 
 }
@@ -34,6 +39,16 @@ impl<'a> From<Pair<'a, Rule>> for AstNode<'a> {
             rule: pair.as_rule(),
             children
         }
+    }
+}
+
+impl<'a> From<Pair<'a, Rule>> for Ast<'a> {
+    fn from(pair: Pair<'a, Rule>) -> Self {
+        let mut children: Vec<AstNode<'a>> = Vec::new();
+        for inner in pair.clone().into_inner() {
+            children.push(AstNode::from(inner));
+        }
+        Self { children }
     }
 }
 

@@ -20,11 +20,11 @@ pest_derive = "*"
 lazy_static = "*"
 serde = { version = "*", features = ["derive"] }
 chrono = "*"
+log = "*"
 # chrono-human = "*"
 # lexical = "*"
 # chrono-english = "*"
 # uom = "*"
-log = "*"
 
 [dev-dependencies]
 pretty_assertions = "*"

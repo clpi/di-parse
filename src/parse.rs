@@ -55,4 +55,36 @@ impl DivParser {
             }
         }
     }
+
+    pub fn match_char(pair: Pair<'_, Rule>) -> () {
+        for inner in pair.into_inner() {
+            match inner.as_rule() {
+                Rule::alpha => print!("Alpha:\t{:?}\n", inner.as_str()),
+                Rule::digit => print!("Digit:\t{:?}\n", inner.as_str()),
+                Rule::punc => {
+                    print!("Punct:\t{:?}\n", inner.as_str());
+                    Self::match_punc(inner);
+                },
+                Rule::ws => print!("Space:\t{:?}\n", inner.as_str()),
+                _ => continue,
+            }
+        }
+    }
+
+    pub fn match_punc(pair: Pair<'_, Rule>) -> () {
+        for inner in pair.into_inner() {
+            match inner.as_rule() {
+                Rule::period => print!("Period:\t{:?}\n", inner.as_str()),
+                Rule::comma => print!("Comma:\t{:?}\n", inner.as_str()), // TODO handle both sides
+                Rule::exclamation => print!("Exclamation:\t{:?}\n", inner.as_str()),
+                Rule::question_mark => {
+                    print!("Exclamation:\t{:?}\n", inner.as_str());
+                },
+                Rule::semicolon => print!("Semicolon:\t{:?}\n", inner.as_str()), //TODO handle both sides
+                Rule::colon => print!("Colon:\t{:?}", inner.as_str()), //TODO handle both sides
+                _ => continue,
+            }
+        }
+    }
+
 }

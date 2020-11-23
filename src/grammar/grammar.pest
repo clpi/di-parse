@@ -497,6 +497,7 @@ special_name = @{ title_case_word }
 // ------------ MISC UNCATEGORIZED FOR NOW
 there = @{ "there" }
 here = @{ "here" }
+adverb = { there | here }
 
 theirs = @{ "theirs" }
 its = @{ "its" }
