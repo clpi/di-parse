@@ -398,6 +398,16 @@ cry = @{"ing"}
 try = @{"try"}
 tried = @{"tried"}
 want = @{"want"}
+make = @{^"make"}
+made = @{^"made"}
+call = @{^"call"}
+tell = @{^"tell"}
+told = @{^"told"}
+give = @{^"give"}
+gave = @{^"gave"}
+_let = @{^"let"}
+_use = @{^"use"}
+_used = @{^"used"}
 
 pres_part = { aux ~ ws ~  word ~ "ing" }
 
@@ -411,10 +421,10 @@ verb_inf = @{ _to ~
 implied_verb_pt = _{ (had | have ) ~ alphanumeric+ ~ "ed" ~ (ws | term_punc)}
 implied_verb_pr = _{ (am | is | are) ~ alphanumeric+ ~ "ing" ~ (ws | term_punc)}
 implied_verb_fu = _{ (shall | will) ~ alphanumeric+ ~ (ws | term_punc)}
-verb_pr = @{ go | see | come | must | shall | has | have | will }
+verb_pr = @{ go | see | come | must | shall | has | have | will | give | tell | call | make | _let }
 //implied_verb_pt_part = {(had | have | hasbeen  ) ~ ws ~ alphanumeric+ ~ "ed"}
 verb_fu = @{ "will" }
-verb_pt = @{ went | came | saw }
+verb_pt = @{ went | came | saw | gave | told | made | _let | _used}
 verb = @{ (aux | verb_inf | "go" | "look" | "see" | verb_pt | verb_pr | verb_fu | verb_inf | implied_verb_fu | implied_verb_pr | implied_verb_pt | prog_verb) }
 prog_verb = @{ verb_pr ~ "ing" }
 

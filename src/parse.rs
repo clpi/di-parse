@@ -45,6 +45,7 @@ impl DivParser {
     pub fn get_pairs(input: String) -> ParseResult<()> {
         let words = Self::parse(Rule::full, input.as_str());
         let dict = Dictionary::from_json("assets/dictionary.json");
+        println!("{:?}", serde_json::to_string(&dict));
         match words {
             Ok(pairs) => {
                 for pair in pairs {
