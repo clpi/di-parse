@@ -19,6 +19,7 @@ pest = "*"
 pest_derive = "*"
 lazy_static = "*"
 serde = { version = "*", features = ["derive"] }
+serde_json = "*"
 chrono = "*"
 log = "*"
 # chrono-human = "*"

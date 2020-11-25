@@ -1,17 +1,16 @@
-// heuristic h1: If the head has an is-for feature, and a. the modifier matches one of the valuees of the is-for feature, then relation holds, or b. any of the hypernyms of the modifier match any of the values of the is-for feature, then holds *probably*
-// heuristic h1: if head has a location-of feature and if any values of the location-of feature have HAS-SUBJECT or HAS-OBJECT features and:
-//      a. the modifier matches any of the values of hte has-subject or has-object features then the relationship almost certainly hodlds
-//      b. any of the hypernyms of the modifier match any of the has-subject or has-object features, then the relationship probably holds
-// heuristic h3: if the headnoun has a HASOBJECT feature and a. the modifier matches any of the has-object values, then the relationship porbably holds, or b. any of the hypernyms of the modifier matches any of hte has-object values, the relationship might hold
+pub mod ast;
+pub mod grammar;
+
 extern crate pest;
 use pest::{
     Parser, ParseResult,
     iterators::Pair
 };
+use crate::dict::Dictionary;
 
 
 #[derive(Parser)]
-#[grammar = "grammar/grammar.pest"]
+#[grammar = "parse/grammar/grammar.pest"]
 pub struct DivParser;
 
 impl DivParser {
@@ -22,6 +21,17 @@ impl DivParser {
             println!("{:ident$}{:#?}: {:?}",
                 "", pair.as_rule(), pair.as_str(), ident = num);
             for inner in pairs {
+                use Rule::*;
+                match inner.as_rule() {
+                    period | EOI => {
+                        println!("END EXPR ----- \n");
+                        continue
+                    },
+                    comma | semicolon | colon => {
+                        println!("END SUBEXPR ---- \n")
+                    },
+                    _ => {},
+                }
                 Self::print_pairs(&inner, num + 2);
             }
         } else {
@@ -34,13 +44,15 @@ impl DivParser {
 
     pub fn get_pairs(input: String) -> ParseResult<()> {
         let words = Self::parse(Rule::full, input.as_str());
+        let dict = Dictionary::from_json("assets/dictionary.json");
         match words {
             Ok(pairs) => {
                 for pair in pairs {
                     Self::print_pairs(&pair, 0);
-                    for inner in pair.into_inner() {
-                        Self::match_pair(inner);
-                    }
+                    match dict.get_def(pair.as_str()) {
+                        Some(def) => println!("{} {:?}", pair.as_str(), def),
+                        None => println!(""),
+                    };
                 }
             },
             Err(e) => panic!("{}", e),

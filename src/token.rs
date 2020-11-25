@@ -1,9 +1,5 @@
-pub mod adjective;
-pub mod adverb;
+pub mod term;
 pub mod noun;
-pub mod object;
-pub mod subject;
-pub mod verb;
 
 use std::collections::HashMap;
 use crate::parse::*;
@@ -13,8 +9,17 @@ pub struct TokenTable<'a> {
     out: Option<&'a TokenTable<'a>>,
 }
 
-pub struct Token {}
+
+pub struct Token {
+    term: String,
+    start_offs: usize,
+    pos: usize,
+}
 
 pub struct Subject {
+
+}
+
+pub struct Rule {
 
 }

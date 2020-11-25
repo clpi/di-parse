@@ -1,14 +1,10 @@
 #[macro_use] extern crate pest_derive;
 
-use pest::Parser;
-
-pub mod state;
 pub mod parse;
 pub mod token;
-pub mod grammar;
 pub mod models;
 pub mod lex;
-pub mod ast;
+pub mod dict;
 
 use std::{
     collections::HashMap,
