@@ -22,4 +22,12 @@ pub struct Subject {
 
 pub struct Rule {
 
+
+}
+
+pub struct Tokenizer {
+
+}
+
+impl Tokenizer {
 }

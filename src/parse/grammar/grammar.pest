@@ -406,7 +406,6 @@ told = @{^"told"}
 give = @{^"give"}
 gave = @{^"gave"}
 _let = @{^"let"}
-_use = @{^"use"}
 _used = @{^"used"}
 
 pres_part = { aux ~ ws ~  word ~ "ing" }
