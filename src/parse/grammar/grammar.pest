@@ -15,7 +15,7 @@ alpha_word = _{ alpha+ }
 
 word_obj = { number | alpha_word | ASCII_DIGIT } // ws | punc +???
 
-newl = { NEWLINE }
+newl = _{ NEWLINE }
 word_ws_term = { word_obj }
 word_comma_term = { word_obj ~ comma }
 word_period_term = { word_obj ~ period }
@@ -33,9 +33,9 @@ word_terminal = {
 terminal_word = { word_obj ~ term_punc }
 sentence_obj = { (word_obj | ws)+ ~ terminal_word }
 
-period = ${ "." }
+period = _{ "." }
 not_period = {!period ~ ANY}
-comma = ${ "," }
+comma = _{ "," }
 semicolon = ${ ";" }
 colon = ${ ":" }
 exclamation = ${ "!" }
@@ -49,6 +49,8 @@ dquote = ${ "\""}
 tilde = ${ "~" }
 left_paren = ${ "(" }
 right_paren = ${ ")" }
+quote = ${ "'" }
+double_quote = ${ "\"" }
 asterisk = ${ "*" }
 bar = ${"|"}
 
@@ -56,7 +58,7 @@ char = { (alpha | digit | punc ) }
 gen_char = { alpha  | digit | punc }
 punc = {
     period | comma | semicolon | colon | exclamation | question_mark
-    | fslash | bslash | hyphen | ellipsis | squote | dquote | left_paren | right_paren
+    | fslash | bslash | hyphen | ellipsis | squote | dquote | left_paren | right_paren | tilde | quote | double_quote | asterisk | bar
 }
 term_punc = _{
     (period | comma | semicolon | colon | exclamation
@@ -64,20 +66,21 @@ term_punc = _{
 }
 
 // TERMINALS
-word = ${ (verb | adverb | noun | preposition | adj | conjunction | determinant | alphanumeric+ ) } // @ or $?
+word = ${ (pron_noun | desc_noun | adj|verb | adverb | noun | preposition  | conjunction | determinant | title_case_word | all_caps_word | alphanumeric+ ) } // @ or $?
 quantified_noun = @{quantifier ~ word}
-title_case_word = @{ !(". ") ~ alpha_upper ~ (alphanumeric)+ } // TODO check to make sure not start of sentence
+title_case_word = @{ !(". ") ~ alpha_upper ~ (alpha_lower)+ } // TODO check to make sure not start of sentence
+all_caps_word = @{ !(". ") ~ alpha_upper+ } // TODO check to make sure not start of sentence
 subj = ${ (pronoun_subj | title_case_word ) } // TODO make sure title case word not in set of words known, like "but", "to", "where", etc.
 obj = ${ ( pronoun_obj | title_case_word ) }
 
 // subexpr = { word }
 
-expr_term = _{ ws+ | term_punc | EOI | newl+  }
+expr_term = _{ ws+ | term_punc+ | EOI | newl+  }
 
 
 subexpr = { (subj? ~ (verb | prog_verb| word)+ ~ obj?) ~ expr_term }
 
-expr = { word+ ~ expr_term }
+expr = { (word | desc_noun)+ ~ expr_term }
 // expr = {
 //    (q_word | adj | adverb | verb | preposition | quantified_noun | alphanumeric )*
 //    ~ expr_term
@@ -153,7 +156,7 @@ _a = @{"a"}
 _an =  @{ "an" }
 _the = @{"the"}
 _that = @{"that"}
-determinant = @{_a | _the | _that | _an}
+determinant = @{(_a | _the | _that | _an) ~ &(adj | verb | noun | alphanumeric+)?}
 
 // QUANTIFIERS ---------
 some = @{ "some" }
@@ -237,29 +240,38 @@ fast = @{"fast"}
 slow = @{"slow"}
 
 adj_mood = { happy | sad | angry | well | unwell }
-adj = { determinant? ~ ws? ~
+adj = { &determinant? ~ ws? ~
     (adj_mood | adj_appearance | adj_character | adj_misc | adj_moral |
-    quantifier | adj_own | bool | fast | slow )
+    quantifier | adj_own | bool | fast | slow | ownership )
 }
 
 // NOUN-----------------------------------
 man = @{"man"}
 men = @{"men"}
+n_bar = @{"bar"}
 person = @{"person"}
 people = @{"people"}
 woman = @{"woman"}
 women = @{"women"}
+friend = @{"friend"}
+enemy = @{"enemy"}
 boy = @{"boy"}
 girl = @{"girl"}
 thing = @{"thing"}
 anything = @{"anything"}
 nothing = @{"nothing"}
-exist_noun = { anything | nothing | thing }
+exist_noun = @{ anything | nothing | thing }
 
-noun_sing = { "bear" | "house" | "thing" | "car" | exist_noun | boy | man | person | woman }
-noun_plur = { "houses" | men | women | people }
-noun = {  (quantifier | determinant)? ~ ws? ~ noun_sing | noun_plur | day | time | times_ref | pronoun  }
+noun_sing = @{ "bear" | "house" | "thing" | "car" | exist_noun | boy | man | person | woman | n_bar | friend | enemy}
+noun_plur = @{ "houses" | men | women | people }
+noun = ${  noun_sing | noun_plur | day | time | times_ref | pronoun | special_place}
+desc_noun = @{ determinant ~ adj? ~ noun }
+pron_noun = @{ pronoun ~ adj? ~ noun }
 
+implied_noun = @{
+    (quantifier | determinant)?
+    ~ ws ~ (adj)? ~ alphanumeric+
+}
 
 parens = @{
     "(" ~ ")"
@@ -283,28 +295,30 @@ quantifier = { adj_quantifier | spelled_number }
 
 // PROnoun --------------
 
-pronoun = ${ pronoun_subj | pronoun_obj }
-pronoun_subj_sing = { i | he | she | you | it | that | this}
-pronoun_subj_plur = { they | we | it | those }
-pronoun_obj_sing = { me | him | her | you |  it | that | this }
-pronoun_obj_plur = { them | us | it | that | those}
-pronoun_subj = { i | he | she | they | we | you | it  | that | this}
-pronoun_obj = { me | him | her | them | us | you | it | those | that | this }
-i = _{"I" }
-it = _{^"it"}
-this = _{^"this"}
-that = _{^"that"}
-those = _{^"those"}
-me = _{^"me" }
-he = _{^"he" }
-him = _{^"him" }
-she = _{^"she" }
-her = _{^"her" }
-they = _{^"they" }
-them = _{^"them" }
-we = _{^"we" }
-us = _{^"us"}
-you = _{^"you"}
+pronoun = ${ (pronoun_obj | pronoun_subj ) ~ &verb?}
+pronoun_subj_sing = ${ i | he | she | you | it | that | this | p_who}
+pronoun_subj_plur = ${ they | we | it | those }
+pronoun_obj_sing = ${ me | him | her | you |  it | that | this | p_whom}
+pronoun_obj_plur = ${ them | us | it | that | those}
+pronoun_subj = ${ i | he | she | they | we | you | it  | that | this | p_who }
+pronoun_obj = ${ me | him | her | them | us | you | it | those | that | this | p_whom }
+i = @{"I" }
+it = @{^"it"}
+this = @{^"this"}
+that = @{^"that"}
+those = @{^"those"}
+me = @{^"me" }
+he = @{^"he" }
+him = @{^"him" }
+she = @{^"she" }
+her = @{^"her" }
+they = @{^"they" }
+them = @{^"them" }
+we = @{^"we" }
+us = @{^"us"}
+you = @{^"you"}
+p_who = @{^"who"}
+p_whom = @{^"whom"}
 // TODO also add super low prescendence WHO and WHOM
 
 
@@ -314,14 +328,19 @@ you = _{^"you"}
 // past participle: been, done, seen
 // present participle: being, seing, writing, doing
 
-aux_verb_sing_pr = { is | am | has | have | can | shall | will | does }
-aux_verb_sing_pt = { was | had | could | should | would | did}
-aux_verb_plur_pr = { are | have | will | can | shall | did}
-aux_verb_plur_pt = { were | could | would | have | should | did }
-aux_verb_plur_fu = { will | can  | shall | _do }
-aux_pt = { aux_verb_plur_pt | aux_verb_sing_pt }
-aux_pr = { aux_verb_sing_pr | aux_verb_plur_pr }
-aux = { aux_pt | aux_pr }
+aux_verb_sing_pr = @{ is | am | has | have | can | does }
+aux_verb_sing_pt = @{ was | had | could | should | would | did}
+aux_verb_sing_fu = @{ will | shall  }
+aux_verb_plur_pr = @{ are | have | will | can | shall | did}
+aux_verb_plur_pt = @{ were | could | would | have | should | did }
+aux_verb_plur_fu = @{ will | can  | shall | _do }
+// aux_fu_mod = { ( will | can | shall ) ~ be}
+// aux_pr_mod = { is | am | are }
+// aux_pt_mod = { was | had_been | hasbeen | could }
+aux_pt = ${ aux_verb_plur_pt | aux_verb_sing_pt }
+aux_pr = ${ aux_verb_sing_pr | aux_verb_plur_pr }
+aux_fu = ${ aux_verb_plur_fu | aux_verb_sing_fu }
+aux = ${ aux_pt | aux_pr | aux_fu}
 // 24 /modals
 
 // ------- to be -> Followed by adjective
@@ -376,28 +395,40 @@ went = @{"went"}
 saw = @{"saw"}
 came = @{"came"}
 cry = @{"ing"}
+try = @{"try"}
+tried = @{"tried"}
+want = @{"want"}
 
 pres_part = { aux ~ ws ~  word ~ "ing" }
 
 hasbeen = { has ~ ws ~ been }
 
 // RIGHT NOW, matches "be" in "bear" hmmmm
-verb_inf = {
-    dare | _use | need | can | happen | may | go | see
-    | must | shall | have | will
+verb_inf = @{ _to ~
+    (dare | _use | need | can | happen | may | go | see
+    | must | shall | have | will | try | come | see | want)
 }
-verb_pt = { "is" }
-verb_fu = { "will" }
-verb = _{ aux | verb_inf | "go" | "look" | "see" }
-prog_verb = @{ verb ~ "ing" }
+implied_verb_pt = _{ (had | have ) ~ alphanumeric+ ~ "ed" ~ (ws | term_punc)}
+implied_verb_pr = _{ (am | is | are) ~ alphanumeric+ ~ "ing" ~ (ws | term_punc)}
+implied_verb_fu = _{ (shall | will) ~ alphanumeric+ ~ (ws | term_punc)}
+verb_pr = @{ go | see | come | must | shall | has | have | will }
+//implied_verb_pt_part = {(had | have | hasbeen  ) ~ ws ~ alphanumeric+ ~ "ed"}
+verb_fu = @{ "will" }
+verb_pt = @{ went | came | saw }
+verb = @{ (aux | verb_inf | "go" | "look" | "see" | verb_pt | verb_pr | verb_fu | verb_inf | implied_verb_fu | implied_verb_pr | implied_verb_pt | prog_verb) }
+prog_verb = @{ verb_pr ~ "ing" }
 
 expr_sing_pt = { pronoun ~ aux_verb_sing_pr ~ prog_verb }
 
 // PREPOSITION ---------------------------
 // Heur: <ADV?> ~ <VERB (nec)> ~ <ADV?> ~ <PREP> ~ <ADJ?> ~ <NOUN (must be)>
 preposition = @{
-    _to | _at | before | after | over | _of | under | above | below
-    | from | _on | like | _as | _by | _for | _in
+    (_to | _at | before | after | over | _of | under | above | below
+    | from | _on | like | _as | _by | _for | _in)
+    ~ &(determinant | adj | noun)?
+}
+preposition_loc = @{
+    _to | _at | over | under | above | below
 }
 
 _in = _{"in"}
@@ -556,8 +587,11 @@ special_name = @{ title_case_word }
 there = _{ ^"there" }
 here = _{ ^"here" }
 then = _{ ^"then" }
+too = _{ ^"too" }
 _unless = @{^"unless"}
-adverb = { there | here | then | _unless }
+adverb = {
+    (there | here | then | _unless) ~ &(adj | verb | adverb)?
+}
 
 
 
@@ -571,9 +605,11 @@ ownership_mod = @{ word ~ "'s" } // TODO handle no apostrophe
 // her = @{ "her" }
 mine = @{"mine"}
 
-ownership_1 = { their | his | my | her | our | its }
-ownership_2 = { theirs | his | mine | hers | ours | its }
-ownership = { ownership_1 | ownership_2 }
+ownership_a = @{ their | his | my | her | our | its }
+ownership_n = @{ theirs | his | mine | hers | ours | its }
+ownership = @{ ownership_n | ownership_a }
+
+special_place = @{ (_to | _in | _at) ~ title_case_word }
 
 
 // SENTENCE TYPES
