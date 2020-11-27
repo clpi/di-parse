@@ -174,12 +174,13 @@ adj_quantifier = _{
     some | few | several | amultiple | couple | many
     | much | lot
 }
-its = @{ "its" }
-my = @{ "my" }
-his = @{ "his" }
-your = @{"your"}
-their = @{ "their" }
-our = @{ "our" }
+its_o = @{ "its" }
+my_o = @{ "my" }
+his_o = @{ "his" }
+her_o = @{ "her" }
+your_o = @{"your"}
+their_o = @{ "their" }
+our_o = @{ "our" }
 
 adj_own = { its | my | his | your | their | our }
 
@@ -296,12 +297,12 @@ quantifier = { adj_quantifier | spelled_number }
 // PROnoun --------------
 
 pronoun = ${ (pronoun_obj | pronoun_subj ) ~ &verb?}
-pronoun_subj_sing = ${ i | he | she | you | it | that | this | p_who}
-pronoun_subj_plur = ${ they | we | it | those }
-pronoun_obj_sing = ${ me | him | her | you |  it | that | this | p_whom}
-pronoun_obj_plur = ${ them | us | it | that | those}
-pronoun_subj = ${ i | he | she | they | we | you | it  | that | this | p_who }
-pronoun_obj = ${ me | him | her | them | us | you | it | those | that | this | p_whom }
+pronoun_subj_sing = ${ i | he | she | you | it | that | this | p_who} // noun
+pronoun_subj_plur = ${ they | we | it | those } // noun
+pronoun_obj_sing = ${ me | him | her | you |  it | that | this | p_whom} // noun
+pronoun_obj_plur = ${ them | us | it | that | those} // noun
+pronoun_subj = ${ i | he | she | they | we | you | it  | that | this | p_who } // noun
+pronoun_obj = ${ me | him | her | them | us | you | it | those | that | this | p_whom } //noun
 i = @{"I" }
 it = @{^"it"}
 this = @{^"this"}

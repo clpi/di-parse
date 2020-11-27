@@ -20,6 +20,7 @@ pest_derive = "*"
 lazy_static = "*"
 serde = { version = "*", features = ["derive"] }
 serde_json = "*"
+Inflector = "*"
 chrono = "*"
 log = "*"
 # tokenizers = "*"
@@ -27,6 +28,14 @@ log = "*"
 # lexical = "*"
 # chrono-english = "*"
 # uom = "*"
+# parse_duration = "*"
+# regex
+# inflector
+# regex = "*" 237kb
+  # aho-corasick = "*" 118
+  # fst = "0.4" 1.58 MB levenshtein feat
+  # regex-automata = "*"
+  # regex-syntax = "*"
 
 [dev-dependencies]
 pretty_assertions = "*"
